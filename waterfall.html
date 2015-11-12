@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>js实现瀑布流效果</title>
+	<script type="text/javascript" src="js/jquery-2.1.0.js"></script>
+	<link rel="stylesheet" href="css/style.css" />
+	<style>
+        .box{width:50%;float:left}
+        .img{width:100%}
+        .box,.container{padding:1%}
+	</style>
+</head>
+<body>
+
+<section class="container"></section>
+<script>
+window.onload=function(){
+	
+var dataArr = [
+        {picUrl:'img/01.jpg',width:214,height:415},
+        {picUrl:'img/02.jpg',width:214,height:415},
+        {picUrl:'img/03.jpg',width:214,height:300},
+        {picUrl:'img/04.jpg',width:214,height:415},
+        {picUrl:'img/05.jpg',width:214,height:415}
+    ];
+
+    $.each(dataArr, function(index, item) {
+        $(".container").append('<div class="box box-item">' +
+                            '<div class="img" style="height:0;padding-bottom:'+cRate(item) * 100 + "%"+'" data-src="'+item.picUrl+'"></div>' + '<div class="desc">Description</div>' + '</div>')
+    });
+ 
+    var boxArr = $('.box'),
+        num = Math.floor(document.body.clientWidth / boxArr.eq(0).outerWidth(true)),
+        columnHeightArr = [];
+    columnHeightArr.length = num;
+    
+    arrangement();
+ 
+　　$('.container').css('minHeight',Math.max.apply(null, columnHeightArr));
+ 
+    lazyLoad();
+ 
+    function arrangement() {
+        boxArr.each(function(index, item) {
+            if (index < num) {
+                columnHeightArr[index] = $(item).position().top + $(item).outerHeight(true);
+            } else {
+                var minHeight = Math.min.apply(null, columnHeightArr),
+                    minHeightIndex = $.inArray(minHeight, columnHeightArr);
+                $(item).css({
+                    position: 'absolute',
+                    top: minHeight,
+                    left: boxArr.eq(minHeightIndex).position().left
+                });
+                columnHeightArr[minHeightIndex] += $(item).outerHeight(true);
+            }
+        })
+    }
+ 
+    function lazyLoad() {
+        var boxArr = $('.box-item');
+        boxArr.each(function(index, item) {
+            var viewTop = $(item).offset().top - $(window).scrollTop(),
+                imgObj = $(item).find('.img');
+            if ((viewTop < $(window).height()) && ($(item).offset().top + $(item).outerHeight(true) > $(window).scrollTop())) {
+              imgObj.css({'background':'url('+imgObj.attr("data-src")+') no-repeat','backgroundSize':'cover'}).removeClass('data-src');
+                $(item).removeClass('box-item');
+            }
+        })
+    }
+ 
+    function cRate(obj) {
+        return obj.height / obj.width;
+    }
+ 
+    function scrollLoad() {
+        var viewHeight = $(window).scrollTop() + $(window).height(),
+            minHeight = Math.min.apply(null, columnHeightArr);
+        if (viewHeight >= minHeight) {
+            //loadMore...
+        }
+    }
+ 
+    $(window).scroll(function() {
+        lazyLoad();
+        scrollLoad();
+    });
+ 
+}
+
+</script>
+
+
+
+</body>
+</html>
