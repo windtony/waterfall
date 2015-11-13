@@ -42,6 +42,10 @@ var dataArr = [
     lazyLoad();
  
     function arrangement() {
+    	var boxArr = $('.box'),
+        num = Math.floor(document.body.clientWidth / boxArr.eq(0).outerWidth(true)),
+        columnHeightArr = [];
+    columnHeightArr.length = num;
         boxArr.each(function(index, item) {
             if (index < num) {
                 columnHeightArr[index] = $(item).position().top + $(item).outerHeight(true);
